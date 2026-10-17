@@ -20,7 +20,13 @@
 
 package dev.lackluster.mihelper.hook.rules.systemui.statusbar
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.graphics.Color
 import android.graphics.Paint
+import android.os.PowerManager
 import android.util.TypedValue
 import android.view.View
 import android.widget.LinearLayout
@@ -40,9 +46,11 @@ import dev.lackluster.mihelper.hook.utils.RemotePreferences.lazyGet
 import dev.lackluster.mihelper.hook.utils.toTyped
 import dev.lackluster.mihelper.utils.factory.dp
 import dev.lackluster.mihelper.utils.factory.dpFloat
+import java.lang.ref.WeakReference
 
 object BatteryIndicator : StaticHooker() {
     private val hideChargeOut by Preferences.SystemUI.StatusBar.IconDetail.HIDE_BATTERY_CHARGE_OUT.lazyGet()
+    private val powerSaveColor by Preferences.SystemUI.StatusBar.IconDetail.BATTERY_POWER_SAVE_COLOR.lazyGet()
     private val percentMarkStyle by Preferences.SystemUI.StatusBar.IconDetail.BATTERY_PERCENT_MARK_STYLE.lazyGet()
     // Padding
     private val valuePaddingStart by Preferences.SystemUI.StatusBar.IconDetail.BATTERY_PADDING_START_VAL.lazyGet()
@@ -101,6 +109,28 @@ object BatteryIndicator : StaticHooker() {
     }
 
     override fun onHook() {
+        if (powerSaveColor) {
+            clzMiuiBatteryMeterView?.resolve()?.firstMethodOrNull {
+                name = "updateAll"
+            }?.hook {
+                val ori = proceed()
+                val batteryPercentView = mBatteryPercentView?.get(thisObject) ?: return@hook result(ori)
+                val batteryPercentMarkView = mBatteryPercentMarkView?.get(thisObject)
+                applyPowerSaveColor(batteryPercentView, batteryPercentMarkView)
+                registerPowerSaveReceiver(thisObject as? View)
+                result(ori)
+            }
+            clzMiuiBatteryMeterView?.resolve()?.firstMethodOrNull {
+                name = "onChanged"
+            }?.hook {
+                val ori = proceed()
+                val batteryPercentView = mBatteryPercentView?.get(thisObject) ?: return@hook result(ori)
+                val batteryPercentMarkView = mBatteryPercentMarkView?.get(thisObject)
+                applyPowerSaveColor(batteryPercentView, batteryPercentMarkView)
+                registerPowerSaveReceiver(thisObject as? View)
+                result(ori)
+            }
+        }
         if (percentMarkStyle != PERCENT_MARK_STYLE_DEFAULT || modifyPercentOutFW || modifyPercentMarkFW || modifyPercentOutSize) {
             clzMiuiBatteryMeterView?.resolve()?.firstMethodOrNull {
                 name = "updateAll"
@@ -196,6 +226,62 @@ object BatteryIndicator : StaticHooker() {
                     }
                 }
                 result(ori)
+            }
+        }
+    }
+
+    private val POWER_SAVE_ORANGE = Color.parseColor("#FFA500")
+    private var savedPercentColor: Int? = null
+    private var savedMarkColor: Int? = null
+    private var receiverViewRef: WeakReference<View>? = null
+    private var receiverRegistered = false
+
+    private val powerSaveReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val view = receiverViewRef?.get() ?: return
+            val percent = mBatteryPercentView?.get(view) ?: return
+            val mark = mBatteryPercentMarkView?.get(view)
+            applyPowerSaveColor(percent, mark)
+        }
+    }
+
+    private fun registerPowerSaveReceiver(view: View?) {
+        if (receiverRegistered || view == null) return
+        val context = view.context ?: return
+        runCatching {
+            context.registerReceiver(
+                powerSaveReceiver,
+                IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
+            )
+            receiverRegistered = true
+            receiverViewRef = WeakReference(view)
+        }
+    }
+
+    private fun applyPowerSaveColor(percent: TextView, mark: TextView?) {
+        runCatching {
+            val context = percent.context ?: return
+            val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager ?: return
+            if (pm.isPowerSaveMode) {
+                if (percent.currentTextColor != POWER_SAVE_ORANGE) {
+                    savedPercentColor = percent.currentTextColor
+                    percent.setTextColor(POWER_SAVE_ORANGE)
+                }
+                mark?.let {
+                    if (it.currentTextColor != POWER_SAVE_ORANGE) {
+                        savedMarkColor = it.currentTextColor
+                        it.setTextColor(POWER_SAVE_ORANGE)
+                    }
+                }
+            } else {
+                if (percent.currentTextColor == POWER_SAVE_ORANGE) {
+                    savedPercentColor?.let { percent.setTextColor(it) }
+                }
+                mark?.let {
+                    if (it.currentTextColor == POWER_SAVE_ORANGE) {
+                        savedMarkColor?.let { c -> it.setTextColor(c) }
+                    }
+                }
             }
         }
     }

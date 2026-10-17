@@ -435,6 +435,7 @@ object Preferences {
                 val BATTERY_PADDING_START_VAL = PreferenceKey("icon_tuner_battery_padding_start_val", 0.0f)
                 val BATTERY_PADDING_END_VAL = PreferenceKey("icon_tuner_battery_padding_end_val", 0.0f)
                 val HIDE_BATTERY_CHARGE_OUT = PreferenceKey("icon_tuner_hide_charge_out", false)
+                val BATTERY_POWER_SAVE_COLOR = PreferenceKey("icon_tuner_battery_power_save_color", false)
                 val BATTERY_PERCENT_MARK_STYLE = PreferenceKey("icon_tuner_battery_percent_mark_style", 0)
                 val CUSTOM_BATTERY_PERCENT_OUT_SIZE = PreferenceKey("icon_tuner_change_battery_percent_out_size", false)
                 val BATTERY_PERCENT_OUT_SIZE_VAL = PreferenceKey("icon_tuner_battery_percent_out_size_val", 12.5f)

@@ -72,6 +72,10 @@ fun LazyListScope.batteryTabContent(
             title = stringResource(R.string.icon_detail_battery_hide_charge),
             summary = stringResource(R.string.icon_detail_battery_hide_charge_tips),
         )
+        SwitchPreference(
+            key = Preferences.SystemUI.StatusBar.IconDetail.BATTERY_POWER_SAVE_COLOR,
+            title = stringResource(R.string.icon_detail_battery_power_save_color),
+        )
     }
     itemPreferenceGroup(
         key = "BATTERY_PERCENTAGE",

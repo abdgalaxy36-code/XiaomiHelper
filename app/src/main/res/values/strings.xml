@@ -740,6 +740,7 @@
     <string name="icon_detail_battery_padding_end">End padding</string>
     <string name="icon_detail_battery_hide_charge">Hide charging icon</string>
     <string name="icon_detail_battery_hide_charge_tips">Only applies to Percentage (in the icon) and Percentage (text only) styles</string>
+    <string name="icon_detail_battery_power_save_color">Orange percentage when Battery Saver is on</string>
     <string name="ui_title_icon_detail_batter_percentage">Percentage</string>
     <string name="icon_detail_battery_percent_mark_style">Percentage symbol style</string>
     <string name="icon_detail_battery_percent_mark_style_default" translatable="false">@string/icon_tuner_hide_selection_default</string>

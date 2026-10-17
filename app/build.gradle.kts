@@ -60,7 +60,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
     androidResources {
-        additionalParameters += listOf("--stable-ids", "stableIds.txt")
+        additionalParameters += listOf("--stable-ids", "/data/data/com.termux/files/home/github/XiaomiHelper/stableIds.txt")
         additionalParameters += listOf("--allow-reserved-package-id", "--package-id", "0x60")
     }
     buildFeatures {

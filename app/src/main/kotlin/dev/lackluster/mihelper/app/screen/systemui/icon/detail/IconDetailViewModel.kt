@@ -56,6 +56,7 @@ private val batteryKeys: Set<PreferenceKey<*>> = setOf(
     Preferences.SystemUI.StatusBar.IconDetail.BATTERY_PADDING_START_VAL,
     Preferences.SystemUI.StatusBar.IconDetail.BATTERY_PADDING_END_VAL,
     Preferences.SystemUI.StatusBar.IconDetail.HIDE_BATTERY_CHARGE_OUT,
+    Preferences.SystemUI.StatusBar.IconDetail.BATTERY_POWER_SAVE_COLOR,
     Preferences.SystemUI.StatusBar.IconDetail.BATTERY_PERCENT_MARK_STYLE,
     Preferences.SystemUI.StatusBar.IconDetail.CUSTOM_BATTERY_PERCENT_IN_SIZE,
     Preferences.SystemUI.StatusBar.IconDetail.BATTERY_PERCENT_IN_SIZE_VAL,
